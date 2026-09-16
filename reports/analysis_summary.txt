@@ -1,0 +1,78 @@
+============================================================
+  VisionForge — Analysis Report
+============================================================
+  Generated: 2026-09-16T20:41:20.707450
+
+  Input: data/images/sample.jpg
+  Image size: (512, 512, 3)
+
+------------------------------------------------------------
+  PREPROCESSING
+------------------------------------------------------------
+    grayscale_time: 0.0020s
+    gaussian_blur_time: 0.0010s
+    hist_eq_time: 0.0000s
+    enhancement_time: 0.0890s
+    histogram_time: 0.0903s
+    fourier_time: 0.4107s
+    Mean intensity: 82.37
+    Std intensity:  61.81
+    Dominant frequency: 9.00
+
+------------------------------------------------------------
+  FEATURE EXTRACTION
+------------------------------------------------------------
+    canny_time: 0.0020s
+    log_time: 0.0091s
+    dog_time: 0.0039s
+    harris_time: 0.0041s
+    hog_time: 0.2715s
+    scale_space_time: 0.4078s
+    gabor_time: 0.6864s
+    Harris corners detected: 364
+    HOG descriptor length: 142884
+    Canny edge ratio: 0.0300
+
+------------------------------------------------------------
+  SEGMENTATION
+------------------------------------------------------------
+    Method: kmeans
+    kmeans_time: 2.0897s
+    kmeans_k: 5
+
+------------------------------------------------------------
+  SHAPE ANALYSIS
+------------------------------------------------------------
+    Lines detected: 23
+    Circles detected: 31
+    Contours found: 28
+
+------------------------------------------------------------
+  EVALUATION
+------------------------------------------------------------
+    canny_time: 0.0020s
+    contour_time: 0.0040s
+    dog_time: 0.0039s
+    enhancement_time: 0.0890s
+    feature_extraction: 1.4432s
+    fourier_time: 0.4107s
+    gabor_time: 0.6864s
+    gaussian_blur_time: 0.0010s
+    grayscale_time: 0.0020s
+    harris_time: 0.0041s
+    hist_eq_time: 0.0000s
+    histogram_time: 0.0903s
+    hog_time: 0.2715s
+    hough_circles_time: 0.0160s
+    hough_lines_time: 0.0172s
+    kmeans_time: 2.0897s
+    log_time: 0.0091s
+    preprocessing: 0.6039s
+    scale_space_time: 0.4078s
+    segmentation: 2.0932s
+    shape_analysis: 0.0563s
+    TOTAL: 8.3015s
+
+============================================================
+  End of Report
+============================================================
