@@ -1,4 +1,9 @@
 \documentclass[11pt,a4paper]{article}
+
+%------------------------------------------------
+% PACKAGES
+%------------------------------------------------
+
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -12,17 +17,29 @@
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \usepackage{listings}
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds}
+
+%------------------------------------------------
+% COLORS
+%------------------------------------------------
+
+\definecolor{navyblue}{RGB}{0,32,96}
+
+%------------------------------------------------
+% PAGE STYLE
+%------------------------------------------------
 
 \setlength{\headheight}{14pt}
+
 \pagestyle{fancy}
 \fancyhf{}
+
 \rhead{VisionForge Engineering Report}
 \lhead{CS480: Computer Vision Engineering}
 \rfoot{Page \thepage}
 
-\graphicspath{{../docs/}}
+%------------------------------------------------
+% HYPERLINK SETTINGS
+%------------------------------------------------
 
 \hypersetup{
     colorlinks=true,
@@ -30,548 +47,1115 @@
     citecolor=navyblue,
     urlcolor=navyblue
 }
-\definecolor{navyblue}{RGB}{0,32,96}
-\definecolor{darkslate}{RGB}{45,55,72}
-\definecolor{lightbg}{RGB}{245,247,250}
 
-\lstset{
-    backgroundcolor=\color{lightbg},
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    captionpos=b,
-    frame=single,
-    keywordstyle=\color{navyblue}\bfseries,
-    commentstyle=\color{gray}\itshape,
-    stringstyle=\color{darkslate}
-}
+%------------------------------------------------
+% DOCUMENT
+%------------------------------------------------
 
 \begin{document}
 
-% ==============================================================================
-% 1. COVER PAGE
-% ==============================================================================
+%================================================
+% CUSTOM TITLE PAGE
+%================================================
+
 \begin{titlepage}
     \centering
+
     \vspace*{1cm}
-    
+
     {\Huge \bfseries VisionForge \par}
+
     \vspace{0.4cm}
-    {\Large \textbf{A Modular Classical Computer Vision Architecture for Multistage Image Processing, Spatial Feature Extraction, and Video Scene Dynamics} \par}
-    
+
+    {\Large
+    \textbf{
+    A Modular Classical Computer Vision Architecture for
+    Multistage Image Processing, Spatial Feature Extraction,
+    and Video Scene Dynamics
+    }
+    \par}
+
     \vspace{0.6cm}
+
     \rule{\linewidth}{1.5pt}
+
     \vspace{1.5cm}
-    
+
     {\Large \textbf{Coursework Project Engineering Report} \par}
+
     \vspace{0.3cm}
+
     {\large Course: CS480 Computer Vision Engineering \par}
-    
+
     \vspace{3cm}
-    
+
     \begin{minipage}{0.8\textwidth}
         \centering
         \large
+
         \textbf{Prepared By:}\\[0.2cm]
+
         \textbf{Parth Jangir}\\
+
         Registration No.: \textbf{24BAI10175}\\[0.3cm]
+
         Department of Computer Science \& Engineering\\
+
         School of Computer Science and Engineering
     \end{minipage}
-    
+
     \vfill
-    
+
     {\large \textbf{Submission Date:} September 2026 \par}
+
     \vspace{1cm}
+
 \end{titlepage}
+
+%------------------------------------------------
+% START ARABIC PAGE NUMBERING
+%------------------------------------------------
 
 \newpage
 \pagenumbering{arabic}
 
-% ==============================================================================
+%================================================
 % ABSTRACT
-% ==============================================================================
-\begin{abstract}
-Automated visual inspection and scene interpretation require deterministic, low-latency, and interpretable algorithm pipelines that operate reliably without black-box neural dependencies or high-end GPU hardware. This report presents \textbf{VisionForge}, an end-to-end Python framework that unifies fundamental classical computer vision routines into a cohesive five-stage architecture: (1) low-level image preprocessing and frequency-domain spectral transformation; (2) multi-scale feature extraction encompassing edge, corner, scale-space, and Gabor texture descriptors; (3) spatial and color-space image segmentation; (4) geometric shape detection, contour analytics, and pattern classification; and (5) video-based scene dynamics incorporating background subtraction, dense/sparse optical flow, and affine motion estimation. 
+%================================================
 
-We provide complete mathematical derivations for every pipeline component -- from Contrast-Limited Adaptive Histogram Equalization (CLAHE) and 2D Discrete Fourier Transforms to Harris second-moment matrices, K-Means color clustering, Hough space accumulators, and Lucas-Kanade gradient constraints. In benchmark trials on $512 \times 512 \times 3$ image arrays, VisionForge executed the full static analysis sequence in $8.3015~\text{s}$, extracting 364 Harris corner keypoints, 142,884 HOG descriptors, 23 Hough lines, 31 circles, and 28 closed contours without triggering unhandled runtime exceptions. Experimental evaluation confirms that deterministic feature engineering delivers transparent, parameter-tunable visual representations suitable for real-time edge processing and autonomous system telemetry.
+\begin{abstract}
+
+VisionForge is a modular classical computer vision architecture designed to demonstrate the complete processing lifecycle of a computer vision system, from low-level image preprocessing to spatial feature extraction, segmentation, geometric analysis, pattern classification, and video scene dynamics.
+
+The system is organized as a five-stage pipeline. The first stage performs image preprocessing and frequency-domain analysis using grayscale conversion, Gaussian and median filtering, contrast enhancement, histogram analysis, and the two-dimensional Discrete Fourier Transform (DFT). The second stage extracts multi-scale visual features using Canny edge detection, Laplacian of Gaussian (LoG), Difference of Gaussians (DoG), Harris corner detection, Gabor filters, and Histogram of Oriented Gradients (HOG). The third stage performs image segmentation using K-Means clustering, Mean-Shift clustering, region growing, and marker-based watershed segmentation.
+
+The fourth stage focuses on geometric and structural analysis through Hough line detection, Hough circle detection, contour extraction, shape descriptors, Principal Component Analysis (PCA), and K-Nearest Neighbours (KNN). The fifth stage extends the architecture to video analysis using background subtraction, dense optical flow, sparse Lucas--Kanade optical flow, and affine motion estimation.
+
+For a $512 \times 512$ RGB input image, the complete static processing pipeline achieved an observed execution time of approximately 8.3015 seconds. The benchmark produced 364 Harris corners, 142,884 HOG descriptors, 23 Hough lines, 31 circles, and 28 closed contours. The measurements demonstrate how different classical computer vision algorithms contribute to overall computational latency.
+
+The project emphasizes modularity, interpretability, mathematical foundations, and measurable system performance rather than reliance on deep learning. The resulting architecture provides a practical framework for understanding how classical computer vision techniques can be combined into a complete engineering pipeline.
+
 \end{abstract}
 
-\newpage
-\tableofcontents
-\newpage
+%================================================
+% 1. INTRODUCTION
+%================================================
 
-% ==============================================================================
-% 2. INTRODUCTION
-% ==============================================================================
-\section{Introduction}
-Computer vision applications across industrial quality assurance, medical diagnostics, robotics, and remote sensing increasingly lean on deep learning models. While deep neural networks deliver high perceptual accuracy, they introduce major engineering constraints: substantial memory footprints, black-box decision boundaries, high energy consumption, and vulnerability to out-of-distribution noise or adversarial shifts. In contrast, classical computer vision methods grounded in signal processing, differential calculus, and vector geometry offer explicit mathematical interpretability, exact parameter control, and zero reliance on dedicated GPU infrastructure.
+\section{Introduction and Theoretical Motivation}
 
-\textbf{VisionForge} is designed to bridge isolated image processing routines into a structured, production-ready software pipeline. Rather than executing disconnected scripts, VisionForge transforms raw sensor imagery through sequentially dependent modules—converting pixel luminance arrays into spectral representations, extracting boundary and interest-point invariants, segmenting spatial regions, fitting geometric primitives, and quantifying kinematic motion fields across video frames.
+Computer vision is the field of artificial intelligence concerned with enabling computers to acquire, process, analyse, and interpret visual information. Although modern computer vision systems frequently rely on deep neural networks, classical computer vision remains important because many fundamental image understanding operations can be implemented using mathematically interpretable and computationally efficient algorithms.
 
-% ==============================================================================
-% 3. PROBLEM STATEMENT
-% ==============================================================================
-\section{Problem Statement}
-Modern visual automation projects require an accessible, modular software framework capable of processing diverse visual data sources without complex deep learning deployment overhead. Many open-source vision tools either provide low-level library bindings without cohesive workflow orchestration or present monolithic black-box neural pipelines.
+VisionForge was developed to demonstrate how a collection of classical computer vision techniques can be integrated into a modular processing architecture. Instead of treating image processing, feature extraction, segmentation, shape detection, and motion analysis as isolated topics, the project combines them into a structured pipeline.
 
-Specifically, engineers face three core challenges:
-\begin{enumerate}[noitemsep]
-    \item \textbf{Lack of Integrated Pipeline Orchestration}: Executing sequential stages (e.g., noise reduction $\rightarrow$ edge extraction $\rightarrow$ clustering $\rightarrow$ shape fitting) typically requires custom boilerplate code, creating fragmentation across projects.
-    \item \textbf{Opaque Intermediate Representations}: Black-box models conceal internal feature representations, preventing step-by-step diagnostic verification during industrial inspection failures.
-    \item \textbf{High Hardware and Dependency Barriers}: Heavy neural framework dependencies (CUDA, PyTorch, TensorRT) prevent lightweight deployment on edge devices and embedded microcontrollers.
+The architecture consists of five major processing stages:
+
+\begin{enumerate}
+    \item Low-level image preprocessing and frequency-domain analysis.
+    \item Multi-scale spatial feature extraction.
+    \item Image segmentation and region analysis.
+    \item Geometric shape detection and pattern classification.
+    \item Video scene dynamics and motion estimation.
 \end{enumerate}
 
-VisionForge directly addresses these challenges by implementing a modular Python architecture that ingests images and videos, applies classical algorithms through configurable stages, and emits both annotated visual outputs and structured telemetry logs.
+The overall objective is to understand not only the mathematical principles behind individual algorithms but also their practical computational behaviour when combined into an engineering system.
 
-% ==============================================================================
-% 4. FUNCTIONAL REQUIREMENTS
-% ==============================================================================
-\section{Functional Requirements}
-The VisionForge framework satisfies the following core functional specifications:
+%================================================
+% 2. SYSTEM ARCHITECTURE
+%================================================
 
-\begin{itemize}[noitemsep]
-    \item \textbf{FR-1: Visual Input Ingestion}: The system shall accept standard static image formats (JPEG, PNG) and dynamic video streams (MP4, AVI) of arbitrary dimensions.
-    \item \textbf{FR-2: Individual Stage Subcommands}: The CLI shall allow targeted execution of isolated pipeline stages (\texttt{preprocess}, \texttt{edges}, \texttt{features}, \texttt{segment}, \texttt{shapes}, \texttt{motion}).
-    \item \textbf{FR-3: End-to-End Pipeline Execution}: The system shall execute a unified subcommand (\texttt{analyze} or \texttt{analyze-video}) that executes all stages sequentially.
-    \item \textbf{FR-4: Algorithm Selection Flexibility}: Users shall be able to configure specific algorithmic backends (e.g., selecting between K-Means, Mean-Shift, Region Growing, or Watershed for segmentation).
-    \item \textbf{FR-5: Visual Output Export}: Annotated output images, edge masks, cluster maps, and comparison grids shall be exported automatically to a designated output directory.
-    \item \textbf{FR-6: Telemetry Reporting}: The system shall generate machine-readable JSON metadata reports and human-readable text summaries detailing all statistical measurements.
-    \item \textbf{FR-7: Latency Metrics}: Per-stage processing latency shall be recorded and reported in seconds and milliseconds.
-\end{itemize}
-
-% ==============================================================================
-% 5. NON-FUNCTIONAL REQUIREMENTS
-% ==============================================================================
-\section{Non-Functional Requirements}
-To ensure operational stability and maintainability, VisionForge complies with five non-functional criteria:
-
-\begin{itemize}
-    \item \textbf{NFR-1: Computational Efficiency}: Pipeline operations shall run entirely on standard CPU architectures without GPU acceleration requirements.
-    \item \textbf{NFR-2: Determinism and Interpretability}: Algorithm outputs must be 100\% reproducible given identical input parameters and random seed initializations.
-    \item \textbf{NFR-3: Robust Input Validation}: The framework must handle missing files, non-standard color spaces, corrupt arrays, and edge dimensions gracefully without throwing unhandled exceptions.
-    \item \textbf{NFR-4: Modular Software Architecture}: Each module shall remain independent, adhering to loose coupling principles so individual algorithms can be extended or swapped.
-    \item \textbf{NFR-5: Zero External Data Dependency}: Testing and baseline validation must operate on synthetic NumPy array generators without requiring external multi-gigabyte training sets.
-\end{itemize}
-
-% ==============================================================================
-% 6. SYSTEM ARCHITECTURE
-% ==============================================================================
 \section{System Architecture}
-VisionForge is organized into a modular layered architecture under the \texttt{src/} directory, coordinated by a central orchestrator (\texttt{src/pipeline.py}) and invoked via \texttt{main.py}.
+
+The VisionForge architecture follows a modular pipeline in which each stage performs a specific visual analysis task.
 
 \begin{figure}[H]
-\centering
-\resizebox{\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=1.2cm and 2.0cm,
-    block/.style={rectangle, draw=navyblue, fill=navyblue!10, thick, rounded corners, minimum width=3.5cm, minimum height=1.0cm, align=center},
-    line/.style={draw=navyblue, -{Latex[scale=1.2]}, thick}
-]
-    \node (user) [block] {\textbf{User / CLI Entry Point} \\ (\texttt{main.py})};
-    \node (pipe) [block, below=of user] {\textbf{Pipeline Controller} \\ (\texttt{src/pipeline.py})};
-    
-    \node (m1) [block, below left=1.5cm and 2.5cm of pipe] {\textbf{Module 1: Preprocessing} \\ (\texttt{preprocessing.py})};
-    \node (m2) [block, below left=1.5cm and -0.8cm of pipe] {\textbf{Module 2: Features} \\ (\texttt{feature\_extraction.py})};
-    \node (m3) [block, below right=1.5cm and -0.8cm of pipe] {\textbf{Module 3: Segmentation} \\ (\texttt{segmentation.py})};
-    \node (m4) [block, below right=1.5cm and 2.5cm of pipe] {\textbf{Module 4: Pattern Analysis} \\ (\texttt{pattern\_analysis.py})};
-    \node (m5) [block, below=3.2cm of pipe] {\textbf{Module 5: Motion Tracking} \\ (\texttt{motion\_analysis.py})};
-    
-    \node (eval) [block, below=1.2cm of m5] {\textbf{Evaluation \& Reporting} \\ (\texttt{evaluation.py}, \texttt{report\_generator.py})};
-
-    \path [line] (user) -- (pipe);
-    \path [line] (pipe) -- (m1);
-    \path [line] (pipe) -- (m2);
-    \path [line] (pipe) -- (m3);
-    \path [line] (pipe) -- (m4);
-    \path [line] (pipe) -- (m5);
-    
-    \path [line] (m1) |- (eval);
-    \path [line] (m2) |- (eval);
-    \path [line] (m3) |- (eval);
-    \path [line] (m4) |- (eval);
-    \path [line] (m5) -- (eval);
-\end{tikzpicture}%
-}
-\caption{High-Level Software Architecture and Module Dependencies}
-\label{fig:arch_diagram}
+    \centering
+    \fbox{
+        \begin{minipage}{0.9\textwidth}
+            \centering
+            \textbf{Input Image / Video}\\
+            $\downarrow$\\
+            \textbf{Preprocessing and Frequency Analysis}\\
+            $\downarrow$\\
+            \textbf{Feature Extraction}\\
+            $\downarrow$\\
+            \textbf{Segmentation}\\
+            $\downarrow$\\
+            \textbf{Shape and Pattern Analysis}\\
+            $\downarrow$\\
+            \textbf{Motion and Scene Dynamics}\\
+            $\downarrow$\\
+            \textbf{Visual Information / Measurements}
+        \end{minipage}
+    }
+    \caption{Overall VisionForge processing architecture}
+    \label{fig:architecture}
 \end{figure}
 
-% ==============================================================================
-% 7. DESIGN DIAGRAMS
-% ==============================================================================
-\section{Design Diagrams}
+The modular design allows individual algorithms to be tested independently while also enabling their outputs to be used as inputs for subsequent processing stages.
 
-\subsection{Use Case Diagram}
-The Use Case Diagram illustrates the interactions between the primary user and the subcommands provided by the VisionForge CLI interface.
+%================================================
+% 3. IMAGE PREPROCESSING
+%================================================
 
-\begin{figure}[H]
-\centering
-\resizebox{0.75\linewidth}{!}{%
-\begin{tikzpicture}[
-    actor/.style={circle, draw=navyblue, fill=navyblue!20, thick, minimum size=1.0cm},
-    usecase/.style={ellipse, draw=navyblue, fill=lightbg, thick, minimum width=3.2cm, minimum height=0.9cm, align=center},
-    line/.style={draw=navyblue, thick}
-]
-    \node (user) [actor] {\textbf{User}};
-    
-    \node (uc1) [usecase, right=3.0cm of user, yshift=2.5cm] {Execute Full Pipeline \\ (\texttt{analyze})};
-    \node (uc2) [usecase, right=3.0cm of user, yshift=1.2cm] {Run Preprocessing \\ (\texttt{preprocess})};
-    \node (uc3) [usecase, right=3.0cm of user, yshift=0.0cm] {Extract Features \\ (\texttt{features / edges})};
-    \node (uc4) [usecase, right=3.0cm of user, yshift=-1.2cm] {Perform Segmentation \\ (\texttt{segment})};
-    \node (uc5) [usecase, right=3.0cm of user, yshift=-2.5cm] {Track Motion \\ (\texttt{motion / analyze-video})};
+\section{Low-Level Image Preprocessing and Frequency-Domain Analysis}
 
-    \path [line] (user) -- (uc1);
-    \path [line] (user) -- (uc2);
-    \path [line] (user) -- (uc3);
-    \path [line] (user) -- (uc4);
-    \path [line] (user) -- (uc5);
-\end{tikzpicture}%
-}
-\caption{VisionForge Use Case Diagram}
-\label{fig:usecase_diagram}
-\end{figure}
+Low-level preprocessing is the first stage of the VisionForge pipeline. The purpose of this stage is to improve image quality, reduce noise, normalize contrast, and extract frequency-domain information.
 
-\subsection{Workflow Diagram}
-The Workflow Diagram illustrates the sequential transformation of image and video data across the five processing stages.
+%------------------------------------------------
+% 3.1 Grayscale
+%------------------------------------------------
 
-\begin{figure}[H]
-\centering
-\resizebox{0.75\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=0.8cm,
-    wfstep/.style={rectangle, draw=navyblue, fill=navyblue!10, thick, rounded corners, minimum width=6.5cm, minimum height=0.8cm, align=center},
-    arrow/.style={draw=navyblue, -{Latex[scale=1.2]}, thick}
-]
-    \node (start) [wfstep] {\textbf{Input Visual Data} (JPEG, PNG, MP4)};
-    \node (val) [wfstep, below=of start] {\textbf{Validation \& Memory Check} (Dimensions, Channels)};
-    \node (prep) [wfstep, below=of val] {\textbf{Stage 1: Preprocessing} (Grayscale, Blur, CLAHE, FFT)};
-    \node (feat) [wfstep, below=of prep] {\textbf{Stage 2: Feature Extraction} (Canny, LoG, Harris, HOG, Gabor)};
-    \node (seg) [wfstep, below=of feat] {\textbf{Stage 3: Image Segmentation} (K-Means, Mean-Shift, Watershed)};
-    \node (shape) [wfstep, below=of seg] {\textbf{Stage 4: Pattern Analysis} (Hough Lines/Circles, Contours, PCA)};
-    \node (motion) [wfstep, below=of shape] {\textbf{Stage 5: Video Scene Dynamics} (MOG2 Background, Optical Flow)};
-    \node (report) [wfstep, below=of motion] {\textbf{Output Generation} (JSON Metadata, Visual Comparisons)};
+\subsection{Grayscale Conversion}
 
-    \path [arrow] (start) -- (val);
-    \path [arrow] (val) -- (prep);
-    \path [arrow] (prep) -- (feat);
-    \path [arrow] (feat) -- (seg);
-    \path [arrow] (seg) -- (shape);
-    \path [arrow] (shape) -- (motion);
-    \path [arrow] (motion) -- (report);
-\end{tikzpicture}%
-}
-\caption{End-to-End Data Transformations in VisionForge}
-\label{fig:workflow_diagram}
-\end{figure}
+RGB images contain three colour channels. For many computer vision algorithms, processing all three channels is unnecessary. Therefore, the input image is converted into grayscale.
 
-\subsection{Sequence Diagram}
-The Sequence Diagram details object creation and message passing during an execution cycle.
+The grayscale intensity is calculated using the standard luminance relationship:
 
-\begin{figure}[H]
-\centering
-\resizebox{0.9\linewidth}{!}{%
-\begin{tikzpicture}[
-    lifeline/.style={draw=darkslate, dashed, thick},
-    obj/.style={rectangle, draw=navyblue, fill=navyblue!15, thick, minimum width=2.2cm, minimum height=0.7cm, align=center},
-    msg/.style={draw=navyblue, -{Latex[scale=1.0]}, thick, font=\small}
-]
-    \node (cli) [obj] {CLI (\texttt{main})};
-    \node (pipe) [obj, right=1.5cm of cli] {PipelineController};
-    \node (prep) [obj, right=1.5cm of pipe] {ImagePreprocessor};
-    \node (feat) [obj, right=1.5cm of prep] {FeatureExtractor};
+\begin{equation}
+Y = 0.299R + 0.587G + 0.114B
+\end{equation}
 
-    \draw [lifeline] (cli) -- ++(0,-4.5);
-    \draw [lifeline] (pipe) -- ++(0,-4.5);
-    \draw [lifeline] (prep) -- ++(0,-4.5);
-    \draw [lifeline] (feat) -- ++(0,-4.5);
+where $R$, $G$, and $B$ represent the red, green, and blue channels respectively.
 
-    \draw [msg] ($(cli)+(0,-1.0)$) -- node[above] {\texttt{run\_pipeline(path)}} ($(pipe)+(0,-1.0)$);
-    \draw [msg] ($(pipe)+(0,-1.8)$) -- node[above] {\texttt{to\_grayscale()}} ($(prep)+(0,-1.8)$);
-    \draw [msg] ($(prep)+(0,-2.4)$) -- node[above] {\texttt{Return Gray Array}} ($(pipe)+(0,-2.4)$);
-    \draw [msg] ($(pipe)+(0,-3.2)$) -- node[above] {\texttt{harris\_corners()}} ($(feat)+(0,-3.2)$);
-    \draw [msg] ($(feat)+(0,-3.8)$) -- node[above] {\texttt{Return Keypoints}} ($(pipe)+(0,-3.8)$);
-\end{tikzpicture}%
-}
-\caption{Sequence Diagram for Image Analysis}
-\label{fig:sequence_diagram}
-\end{figure}
+The grayscale representation reduces the dimensionality of the input while preserving important intensity information.
 
-\subsection{Class / Component Diagram}
-The Class Diagram outlines the internal module interfaces and inheritance relationships.
+%------------------------------------------------
+% 3.2 Gaussian Filtering
+%------------------------------------------------
 
-\begin{figure}[H]
-\centering
-\resizebox{0.9\linewidth}{!}{%
-\begin{tikzpicture}[
-    class/.style={rectangle, draw=navyblue, fill=lightbg, thick, minimum width=4.5cm, align=left, font=\small}
-]
-    \node (c1) [class] {
-        \begin{tabular}{l}
-        \textbf{ImagePreprocessor}\\
-        \hline
-        + metadata: dict\\
-        \hline
-        + to\_grayscale(image)\\
-        + gaussian\_blur(image, k)\\
-        + apply\_clahe(image)\\
-        + fourier\_transform(image)
-        \end{tabular}
-    };
-    
-    \node (c2) [class, right=1.0cm of c1] {
-        \begin{tabular}{l}
-        \textbf{FeatureExtractor}\\
-        \hline
-        + metadata: dict\\
-        \hline
-        + canny\_edges(image)\\
-        + harris\_corners(image)\\
-        + hog\_descriptors(image)\\
-        + gabor\_filter\_bank(image)
-        \end{tabular}
-    };
+\subsection{Gaussian Filtering}
 
-    \node (c3) [class, below=1.0cm of c1] {
-        \begin{tabular}{l}
-        \textbf{ImageSegmenter}\\
-        \hline
-        + metadata: dict\\
-        \hline
-        + kmeans\_segmentation(image, k)\\
-        + meanshift\_segmentation(image)\\
-        + watershed\_segmentation(image)
-        \end{tabular}
-    };
+Gaussian filtering is used to smooth an image and reduce high-frequency noise.
 
-    \node (c4) [class, below=1.0cm of c2] {
-        \begin{tabular}{l}
-        \textbf{PatternAnalyzer}\\
-        \hline
-        + metadata: dict\\
-        \hline
-        + hough\_lines(edges)\\
-        + hough\_circles(edges)\\
-        + analyze\_contours(mask)
-        \end{tabular}
-    };
-\end{tikzpicture}%
-}
-\caption{Core Module Class Architecture}
-\label{fig:class_diagram}
-\end{figure}
+The two-dimensional Gaussian function is:
 
-\subsection{Data Schema / Telemetry Structure}
-VisionForge logs structured telemetry via a standardized JSON schema representing pipeline execution parameters and outputs.
+\begin{equation}
+G(x,y)=
+\frac{1}{2\pi\sigma^2}
+\exp
+\left(
+-\frac{x^2+y^2}{2\sigma^2}
+\right)
+\end{equation}
 
-\begin{figure}[H]
-\centering
-\resizebox{0.85\linewidth}{!}{%
-\begin{tikzpicture}[
-    entity/.style={rectangle, draw=navyblue, fill=navyblue!10, thick, minimum width=3.8cm, minimum height=1.0cm, align=center, font=\small},
-    rel/.style={draw=navyblue, thick, -{Latex[scale=1.0]}}
-]
-    \node (root) [entity] {\textbf{AnalysisReport} \\ (Timestamp, Input Path)};
-    \node (prep) [entity, below left=1.2cm and 1.0cm of root] {\textbf{PreprocessingMeta} \\ (Intensity Mean/Std, FFT)};
-    \node (feat) [entity, below left=1.2cm and -1.2cm of root] {\textbf{FeatureMeta} \\ (Corner Count, HOG Len)};
-    \node (seg) [entity, below right=1.2cm and -1.2cm of root] {\textbf{SegmentationMeta} \\ (Cluster K, WCSS)};
-    \node (time) [entity, below right=1.2cm and 1.0cm of root] {\textbf{TimingMeta} \\ (Per-Stage Latencies)};
+where $\sigma$ controls the amount of smoothing.
 
-    \path [rel] (root) -- (prep);
-    \path [rel] (root) -- (feat);
-    \path [rel] (root) -- (seg);
-    \path [rel] (root) -- (time);
-\end{tikzpicture}%
-}
-\caption{JSON Metadata Telemetry Data Schema}
-\label{fig:er_diagram}
-\end{figure}
+The filtered image is obtained through convolution:
 
-% ==============================================================================
-% 8. DESIGN DECISIONS & RATIONALE
-% ==============================================================================
-\section{Design Decisions \& Rationale}
-Key architectural decisions were guided by deterministic performance requirements:
+\begin{equation}
+I_{G}(x,y)=I(x,y)*G(x,y)
+\end{equation}
+
+Gaussian filtering is particularly useful before edge detection because it suppresses small intensity fluctuations that could otherwise produce false edges.
+
+%------------------------------------------------
+% 3.3 Median Filtering
+%------------------------------------------------
+
+\subsection{Median Filtering}
+
+Median filtering is a nonlinear filtering technique commonly used to remove impulse noise.
+
+For each pixel, a neighbourhood is considered and the pixel value is replaced by the median of the neighbourhood values.
+
+Unlike linear averaging filters, median filtering preserves edges relatively well while removing isolated noisy pixels.
+
+%------------------------------------------------
+% 3.4 CLAHE
+%------------------------------------------------
+
+\subsection{Contrast Limited Adaptive Histogram Equalization}
+
+Contrast Limited Adaptive Histogram Equalization (CLAHE) improves local image contrast.
+
+Instead of applying histogram equalization to the entire image, CLAHE divides the image into small regions called tiles and performs local histogram equalization.
+
+A contrast limit is applied to prevent excessive amplification of noise.
+
+The process can be summarized as:
 
 \begin{enumerate}
-    \item \textbf{Classical Computer Vision vs. Deep Learning}: Deep neural models require significant GPU acceleration and lack explainability. We selected classical algorithms (Canny, Harris, K-Means, Hough) to guarantee predictable execution, low CPU memory overhead, and transparent parameter tuning.
-    \item \textbf{CLAHE over Global Histogram Equalization}: Standard histogram equalization over-amplifies noise in flat areas. CLAHE operates on localized $8 \times 8$ contextual tiles with a clip limit $\beta = 2.0$, preserving fine boundary detail in high-contrast and shaded regions alike.
-    \item \textbf{Dynamic Median-Based Canny Thresholding}: Static hysteresis thresholds fail when lighting conditions change. We implemented an dynamic thresholding heuristic ($T_{\text{low}} = 0.66 \cdot \text{median}, T_{\text{high}} = 1.33 \cdot \text{median}$), stabilizing edge detection across different illumination levels.
-    \item \textbf{Marker-Based Watershed Segmentation}: Direct distance-transform watershed suffers from severe over-segmentation. Initializing catchment basin markers via morphological local distance maxima prevents artificial region fracturing.
+    \item Divide the image into local tiles.
+    \item Calculate the histogram of each tile.
+    \item Clip histogram bins exceeding the contrast limit.
+    \item Redistribute the clipped pixels.
+    \item Apply histogram equalization.
+    \item Interpolate between neighbouring tiles.
 \end{enumerate}
 
-% ==============================================================================
-% 9. IMPLEMENTATION DETAILS
-% ==============================================================================
-\section{Implementation Details}
-VisionForge is implemented across five decoupled modules in \texttt{src/}.
+The measured execution time for CLAHE was approximately 0.0890 seconds.
 
-\subsection{Module 1: Preprocessing Engine (\texttt{src/preprocessing.py})}
-Converts BGR imagery $I_{\text{BGR}} \in \mathbb{R}^{H \times W \times 3}$ to single-channel grayscale $Y$ following ITU-R BT.601:
+%------------------------------------------------
+% 3.5 Histogram Analysis
+%------------------------------------------------
+
+\subsection{Histogram Analysis}
+
+An image histogram represents the frequency of different intensity values.
+
+For a grayscale image, the histogram can be represented as:
+
 \begin{equation}
-Y(x,y) = 0.299 \cdot R(x,y) + 0.587 \cdot G(x,y) + 0.114 \cdot B(x,y)
-\end{equation}
-Noise reduction utilizes 2D isotropic Gaussian kernels:
-\begin{equation}
-G(x,y) = \frac{1}{2\pi \sigma^2} \exp\left(-\frac{x^2 + y^2}{2\sigma^2}\right)
-\end{equation}
-Frequency analysis computes the 2D Discrete Fourier Transform (DFT):
-\begin{equation}
-F(u,v) = \sum_{x=0}^{M-1} \sum_{y=0}^{N-1} f(x,y) \exp\left( -j 2\pi \left( \frac{ux}{M} + \frac{vy}{N} \right) \right)
+H(k)=\sum_{x}\sum_{y}[I(x,y)=k]
 \end{equation}
 
-\subsection{Module 2: Feature Extraction (\texttt{src/feature\_extraction.py})}
-Computes local interest points, scale-space representations, and texture descriptors:
-\begin{itemize}
-    \item \textbf{Laplacian of Gaussian (LoG)}: Identifies zero-crossings scale-normalized by $\sigma^2$:
-    \begin{equation}
-    \nabla^2 G(x,y;\sigma) = \frac{x^2 + y^2 - 2\sigma^2}{2\pi \sigma^6} \exp\left(-\frac{x^2 + y^2}{2\sigma^2}\right)
-    \end{equation}
-    \item \textbf{Harris Corner Detection}: Evaluates the local second-moment auto-correlation matrix $\mathbf{M}$:
-    \begin{equation}
-    \mathbf{M}(x,y) = \sum_{w} \begin{bmatrix} I_x^2 & I_x I_y \\ I_x I_y & I_y^2 \end{bmatrix}, \quad R = \det(\mathbf{M}) - k \cdot (\text{trace}(\mathbf{M}))^2
-    \end{equation}
-    \item \textbf{Gabor Filter Bank}: Convolves spatial orientation kernels across angles $\theta \in \{0, \frac{\pi}{4}, \frac{\pi}{2}, \frac{3\pi}{4}\}$:
-    \begin{equation}
-    g(x,y;\lambda,\theta,\psi,\sigma,\gamma) = \exp\left(-\frac{x'^2 + \gamma^2 y'^2}{2\sigma^2}\right) \cos\left(2\pi \frac{x'}{\lambda} + \psi\right)
-    \end{equation}
-\end{itemize}
+where $k$ represents an intensity level.
 
-\subsection{Module 3: Image Segmentation (\texttt{src/segmentation.py})}
-Partitions color images into $K$ semantic clusters by minimizing within-cluster sum of squares (WCSS):
+The histogram provides information about brightness and contrast distribution.
+
+The measured histogram analysis stage required approximately 0.0903 seconds.
+
+%------------------------------------------------
+% 3.6 DFT
+%------------------------------------------------
+
+\subsection{Two-Dimensional Discrete Fourier Transform}
+
+The two-dimensional Discrete Fourier Transform converts an image from the spatial domain into the frequency domain.
+
+The DFT is defined as:
+
 \begin{equation}
-J = \sum_{j=1}^{K} \sum_{\mathbf{x}_i \in S_j} \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2
+F(u,v)=
+\sum_{x=0}^{M-1}
+\sum_{y=0}^{N-1}
+f(x,y)
+e^{-j2\pi
+\left(
+\frac{ux}{M}+\frac{vy}{N}
+\right)}
 \end{equation}
 
-\subsection{Module 4: Pattern Analysis (\texttt{src/pattern\_analysis.py})}
-Maps candidate boundary points into polar accumulator space for parametric shape detection:
+where $f(x,y)$ represents the spatial-domain image and $F(u,v)$ represents its frequency-domain representation.
+
+The magnitude spectrum can be calculated as:
+
 \begin{equation}
-\rho = x \cos\theta + y \sin\theta, \quad (x - a)^2 + (y - b)^2 = r^2
+|F(u,v)| =
+\sqrt{
+\operatorname{Re}(F)^2+
+\operatorname{Im}(F)^2
+}
 \end{equation}
-Contour metrics evaluate circularity $\mathcal{C} = \frac{4\pi A}{P^2}$ and solidity $\mathcal{S} = \frac{A}{A_{\text{hull}}}$.
 
-\subsection{Module 5: Motion Tracking (\texttt{src/motion\_analysis.py})}
-Quantifies frame-to-frame video dynamics using Lucas-Kanade sparse feature tracking:
+The dominant measured frequency in the benchmark was approximately 9 cycles/pixel.
+
+The FFT processing stage required approximately 0.4107 seconds.
+
+%================================================
+% 4. FEATURE EXTRACTION
+%================================================
+
+\section{Multi-Scale Feature Extraction}
+
+Feature extraction converts an image into meaningful representations that describe edges, corners, textures, shapes, and local gradients.
+
+VisionForge implements several classical feature extraction techniques.
+
+%------------------------------------------------
+% 4.1 Canny
+%------------------------------------------------
+
+\subsection{Canny Edge Detection}
+
+Canny edge detection identifies locations of significant intensity changes.
+
+The algorithm consists of several steps:
+
+\begin{enumerate}
+    \item Gaussian smoothing.
+    \item Gradient computation.
+    \item Gradient magnitude and direction calculation.
+    \item Non-maximum suppression.
+    \item Double thresholding.
+    \item Edge tracking by hysteresis.
+\end{enumerate}
+
+The gradient magnitude can be represented as:
+
 \begin{equation}
-\begin{bmatrix} \sum I_x^2 & \sum I_x I_y \\ \sum I_x I_y & \sum I_y^2 \end{bmatrix} \begin{bmatrix} V_x \\ V_y \end{bmatrix} = -\begin{bmatrix} \sum I_x I_t \\ \sum I_y I_t \end{bmatrix}
+G=\sqrt{G_x^2+G_y^2}
 \end{equation}
 
-% ==============================================================================
-% 10. SCREENSHOTS & RESULTS
-% ==============================================================================
-\section{Screenshots \& Experimental Results}
-We evaluated VisionForge using standard benchmark image arrays ($512 \times 512 \times 3$).
+The measured Canny edge density was approximately 0.0300.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.85\textwidth]{comparison_grid.png}
-\caption{VisionForge Multi-Stage Output Visual Comparison Grid}
-\label{fig:comp_grid}
-\end{figure}
+%------------------------------------------------
+% 4.2 LoG
+%------------------------------------------------
+
+\subsection{Laplacian of Gaussian}
+
+The Laplacian of Gaussian combines Gaussian smoothing with the Laplacian operator.
+
+It can be expressed as:
+
+\begin{equation}
+LoG=\nabla^2(G_{\sigma}*I)
+\end{equation}
+
+The LoG operator is useful for detecting rapid intensity changes and blob-like structures.
+
+The measured execution time was approximately 0.0091 seconds.
+
+%------------------------------------------------
+% 4.3 DoG
+%------------------------------------------------
+
+\subsection{Difference of Gaussians}
+
+Difference of Gaussians approximates scale-space filtering by subtracting two Gaussian-blurred versions of an image.
+
+\begin{equation}
+DoG(x,y)=
+G(x,y,k\sigma)*I-
+G(x,y,\sigma)*I
+\end{equation}
+
+The measured execution time was approximately 0.0039 seconds.
+
+%------------------------------------------------
+% 4.4 Harris
+%------------------------------------------------
+
+\subsection{Harris Corner Detection}
+
+Harris corner detection identifies points where image intensity changes significantly in multiple directions.
+
+The structure tensor is:
+
+\begin{equation}
+M=
+\begin{bmatrix}
+\sum I_x^2 & \sum I_xI_y\\
+\sum I_xI_y & \sum I_y^2
+\end{bmatrix}
+\end{equation}
+
+The Harris response is:
+
+\begin{equation}
+R=\det(M)-k(\operatorname{trace}(M))^2
+\end{equation}
+
+where $k$ is an empirical constant.
+
+The benchmark detected 364 Harris corners.
+
+The execution time was approximately 0.0041 seconds.
+
+%------------------------------------------------
+% 4.5 Gabor
+%------------------------------------------------
+
+\subsection{Gabor Filters}
+
+Gabor filters are useful for texture analysis.
+
+A two-dimensional Gabor function can be represented as:
+
+\begin{equation}
+g(x,y)=
+\exp
+\left(
+-\frac{x'^2+\gamma^2y'^2}{2\sigma^2}
+\right)
+\cos
+\left(
+2\pi\frac{x'}{\lambda}+\psi
+\right)
+\end{equation}
+
+where
+
+\begin{equation}
+x'=x\cos\theta+y\sin\theta
+\end{equation}
+
+and
+
+\begin{equation}
+y'=-x\sin\theta+y\cos\theta
+\end{equation}
+
+Gabor filtering was one of the more computationally expensive feature extraction operations, requiring approximately 0.6864 seconds.
+
+%------------------------------------------------
+% 4.6 HOG
+%------------------------------------------------
+
+\subsection{Histogram of Oriented Gradients}
+
+Histogram of Oriented Gradients (HOG) represents an image using local gradient orientations.
+
+The gradient magnitude is:
+
+\begin{equation}
+m(x,y)=
+\sqrt{
+G_x(x,y)^2+G_y(x,y)^2
+}
+\end{equation}
+
+The gradient orientation is:
+
+\begin{equation}
+\theta(x,y)=
+\tan^{-1}
+\left(
+\frac{G_y(x,y)}{G_x(x,y)}
+\right)
+\end{equation}
+
+The benchmark generated 142,884 HOG descriptors.
+
+The measured HOG execution time was approximately 0.2715 seconds.
+
+%================================================
+% 5. SEGMENTATION
+%================================================
+
+\section{Spatial and Color Segmentation}
+
+Segmentation divides an image into meaningful regions based on similarity in colour, intensity, texture, or spatial properties.
+
+%------------------------------------------------
+% 5.1 K-Means
+%------------------------------------------------
+
+\subsection{K-Means Clustering}
+
+K-Means partitions data into $K$ clusters.
+
+The objective function is:
+
+\begin{equation}
+J=
+\sum_{i=1}^{n}
+\sum_{j=1}^{K}
+\mathbf{1}(c_i=j)
+\|x_i-\mu_j\|^2
+\end{equation}
+
+where $x_i$ is a data point and $\mu_j$ is the centroid of cluster $j$.
+
+The main steps are:
+
+\begin{enumerate}
+    \item Select the number of clusters $K$.
+    \item Initialize cluster centroids.
+    \item Assign each point to the nearest centroid.
+    \item Recalculate centroids.
+    \item Repeat until convergence.
+\end{enumerate}
+
+For $K=5$, the measured execution time was approximately 2.0897 seconds.
+
+This was the largest individual measured computational cost in the static pipeline.
+
+%------------------------------------------------
+% 5.2 Mean Shift
+%------------------------------------------------
+
+\subsection{Mean-Shift Segmentation}
+
+Mean-Shift is a non-parametric clustering method that searches for modes in a feature distribution.
+
+The algorithm repeatedly shifts a candidate point toward the mean of neighbouring data points until convergence.
+
+Unlike K-Means, Mean-Shift does not require the number of clusters to be specified explicitly.
+
+%------------------------------------------------
+% 5.3 Region Growing
+%------------------------------------------------
+
+\subsection{Region Growing}
+
+Region growing begins from one or more seed points and expands a region by adding neighbouring pixels that satisfy a similarity criterion.
+
+The general procedure is:
+
+\begin{enumerate}
+    \item Select seed pixels.
+    \item Examine neighbouring pixels.
+    \item Compare neighbouring pixels with the region criterion.
+    \item Add suitable pixels to the region.
+    \item Continue until no suitable pixels remain.
+\end{enumerate}
+
+%------------------------------------------------
+% 5.4 Watershed
+%------------------------------------------------
+
+\subsection{Marker-Based Watershed Segmentation}
+
+Watershed segmentation treats an image as a topographic surface.
+
+Bright regions can be interpreted as peaks while dark regions represent valleys.
+
+Marker-based watershed uses predefined markers to control the segmentation process and reduce unwanted over-segmentation.
+
+%================================================
+% 6. SHAPE AND PATTERN ANALYSIS
+%================================================
+
+\section{Geometric Shape Detection and Pattern Classification}
+
+This stage extracts geometric information from segmented or edge-based images.
+
+%------------------------------------------------
+% 6.1 Hough Lines
+%------------------------------------------------
+
+\subsection{Hough Line Transform}
+
+The Hough Transform can detect lines in an image.
+
+A line can be represented using normal form:
+
+\begin{equation}
+\rho=x\cos\theta+y\sin\theta
+\end{equation}
+
+where $\rho$ represents the distance from the origin and $\theta$ represents the angle of the normal.
+
+The benchmark detected 23 lines.
+
+The measured execution time was approximately 0.0172 seconds.
+
+%------------------------------------------------
+% 6.2 Hough Circles
+%------------------------------------------------
+
+\subsection{Hough Circle Detection}
+
+A circle can be represented as:
+
+\begin{equation}
+(x-a)^2+(y-b)^2=r^2
+\end{equation}
+
+where $(a,b)$ is the centre and $r$ is the radius.
+
+The Hough Circle Transform searches for combinations of centre coordinates and radius values that provide strong evidence of circular structures.
+
+The benchmark detected 31 circles.
+
+The measured execution time was approximately 0.0160 seconds.
+
+%------------------------------------------------
+% 6.3 Contours
+%------------------------------------------------
+
+\subsection{Contour Extraction}
+
+Contours represent continuous boundaries of objects.
+
+Contour extraction can be used to identify object boundaries and calculate geometric properties.
+
+The benchmark detected 28 closed contours.
+
+The measured contour-processing time was approximately 0.0040 seconds.
+
+%------------------------------------------------
+% 6.4 Shape Descriptors
+%------------------------------------------------
+
+\subsection{Shape Descriptors}
+
+Two useful geometric descriptors are circularity and solidity.
+
+Circularity is defined as:
+
+\begin{equation}
+C=
+\frac{4\pi A}{P^2}
+\end{equation}
+
+where $A$ is area and $P$ is perimeter.
+
+Solidity is defined as:
+
+\begin{equation}
+S=
+\frac{A}{A_{\text{convex hull}}}
+\end{equation}
+
+These descriptors allow geometric characteristics of objects to be compared.
+
+%------------------------------------------------
+% 6.5 PCA
+%------------------------------------------------
+
+\subsection{Principal Component Analysis}
+
+Principal Component Analysis (PCA) is used for dimensionality reduction and identifying directions of maximum variance.
+
+The covariance matrix is calculated as:
+
+\begin{equation}
+\Sigma=
+\frac{1}{n-1}
+X^TX
+\end{equation}
+
+Eigenvectors of the covariance matrix define principal directions, while the corresponding eigenvalues represent the amount of variance along those directions.
+
+%------------------------------------------------
+% 6.6 KNN
+%------------------------------------------------
+
+\subsection{K-Nearest Neighbours}
+
+KNN classifies an unknown sample based on the classes of its nearest training samples.
+
+For Euclidean distance:
+
+\begin{equation}
+d(x,y)=
+\sqrt{
+\sum_{i=1}^{n}
+(x_i-y_i)^2
+}
+\end{equation}
+
+The class is generally selected according to the majority vote among the $K$ nearest neighbours.
+
+%================================================
+% 7. VIDEO SCENE DYNAMICS
+%================================================
+
+\section{Video Scene Dynamics}
+
+The final module extends the classical computer vision pipeline from static image processing to video analysis.
+
+The main objective is to identify moving objects and estimate motion between consecutive video frames.
+
+%------------------------------------------------
+% 7.1 Background Subtraction
+%------------------------------------------------
+
+\subsection{Background Subtraction}
+
+Background subtraction separates foreground objects from a relatively stationary background.
+
+VisionForge uses the MOG2 background subtraction approach.
+
+The basic process is:
+
+\begin{enumerate}
+    \item Capture the current frame.
+    \item Estimate the background model.
+    \item Compare the current frame with the background.
+    \item Identify pixels belonging to moving objects.
+    \item Generate the foreground mask.
+\end{enumerate}
+
+%------------------------------------------------
+% 7.2 Dense Optical Flow
+%------------------------------------------------
+
+\subsection{Farnebäck Dense Optical Flow}
+
+Dense optical flow estimates motion vectors for a large number of pixels between consecutive frames.
+
+The resulting motion field provides information about the direction and magnitude of scene movement.
+
+Dense optical flow is useful when motion information is required across a large portion of the image.
+
+%------------------------------------------------
+% 7.3 Sparse Optical Flow
+%------------------------------------------------
+
+\subsection{Lucas--Kanade Sparse Optical Flow}
+
+The Lucas--Kanade method estimates motion for selected feature points.
+
+It is based on the brightness constancy assumption:
+
+\begin{equation}
+I(x,y,t)=I(x+\Delta x,y+\Delta y,t+\Delta t)
+\end{equation}
+
+Using a first-order Taylor approximation leads to the optical flow constraint equation:
+
+\begin{equation}
+I_xu+I_yv+I_t=0
+\end{equation}
+
+where $u$ and $v$ represent the horizontal and vertical velocity components.
+
+%------------------------------------------------
+% 7.4 Affine Motion
+%------------------------------------------------
+
+\subsection{Affine Motion Estimation}
+
+Affine transformation models translation, rotation, scaling, and shear.
+
+A two-dimensional affine transformation can be written as:
+
+\begin{equation}
+\begin{bmatrix}
+x'\\
+y'
+\end{bmatrix}
+=
+\begin{bmatrix}
+a & b\\
+c & d
+\end{bmatrix}
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}
++
+\begin{bmatrix}
+t_x\\
+t_y
+\end{bmatrix}
+\end{equation}
+
+Affine motion estimation is useful for describing global camera or object motion.
+
+%================================================
+% 8. EXPERIMENTAL SETUP
+%================================================
+
+\section{Experimental Setup}
+
+The VisionForge system was evaluated using a $512\times512$ RGB image.
+
+The experiment measured execution time for individual operations and recorded the outputs produced by different algorithms.
+
+The benchmark was performed on the complete static image-processing pipeline.
+
+The measured results are summarized below.
+
+%================================================
+% 9. PERFORMANCE BENCHMARK
+%================================================
+
+\section{Empirical Latency Evaluation}
 
 \begin{table}[H]
 \centering
-\caption{Stage Execution Latency Profile ($512 \times 512$ Resolution)}
-\label{tab:latency_profile}
-\begin{tabular}{llrr}
+\caption{Measured execution time of VisionForge processing stages}
+\label{tab:benchmark}
+\begin{tabular}{lr}
 \toprule
-\textbf{Module Stage} & \textbf{Algorithm / Operation} & \textbf{Time (s)} & \textbf{\% Total} \\
+\textbf{Processing Operation} & \textbf{Time (s)}\\
 \midrule
-Module 1 & Grayscale \& Blur & 0.0030 & 0.04\% \\
-         & CLAHE Enhancement & 0.0890 & 1.07\% \\
-         & 2D Fourier Spectrum (FFT) & 0.4107 & 4.95\% \\
-Module 2 & Canny Edge Detection & 0.0020 & 0.02\% \\
-         & Harris Corner Detection & 0.0041 & 0.05\% \\
-         & HOG Descriptor Extraction & 0.2715 & 3.27\% \\
-         & Scale-Space \& Gabor Bank & 1.0942 & 13.18\% \\
-Module 3 & K-Means Color Segmentation ($K=5$) & 2.0897 & 25.17\% \\
-Module 4 & Hough Lines, Circles \& Contours & 0.0372 & 0.45\% \\
+Grayscale Conversion & 0.0020\\
+Gaussian Filtering & 0.0010\\
+Histogram Equalization & 0.0000\\
+CLAHE & 0.0890\\
+Histogram Analysis & 0.0903\\
+FFT / DFT & 0.4107\\
+Canny Edge Detection & 0.0020\\
+Laplacian of Gaussian & 0.0091\\
+Difference of Gaussians & 0.0039\\
+Harris Corner Detection & 0.0041\\
+HOG & 0.2715\\
+Scale-Space Processing & 0.4078\\
+Gabor Filtering & 0.6864\\
+K-Means ($K=5$) & 2.0897\\
+Hough Line Detection & 0.0172\\
+Hough Circle Detection & 0.0160\\
+Contour Processing & 0.0040\\
 \midrule
-\textbf{Total} & \textbf{All Stages Combined} & \textbf{8.3015} & \textbf{100.00\%} \\
+\textbf{Total Pipeline} & \textbf{8.3015}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
+The total measured execution time of the static pipeline was 8.3015 seconds.
+
+%================================================
+% 10. FEATURE SUMMARY
+%================================================
+
+\section{Feature and Detection Summary}
+
+The major outputs obtained during the benchmark are summarized below.
+
 \begin{table}[H]
 \centering
-\caption{Quantitative Feature Extraction Summary}
-\label{tab:feature_summary}
-\begin{tabular}{llr}
+\caption{VisionForge benchmark feature summary}
+\label{tab:features}
+\begin{tabular}{lr}
 \toprule
-\textbf{Metric Category} & \textbf{Feature Parameter} & \textbf{Measured Value} \\
+\textbf{Feature / Measurement} & \textbf{Value}\\
 \midrule
-Image Statistics & Mean Intensity / Std Deviation & 82.37 / 61.81 \\
-Boundary Density & Canny Edge Ratio & 0.0300 (3.00\%) \\
-Keypoints & Harris Corner Keypoints & 364 corners \\
-HOG Descriptor & Descriptor Vector Size & 142,884 floats \\
-Geometric Shapes & Hough Lines / Circles Detected & 23 lines / 31 circles \\
-Contours & Closed Contours Analyzed & 28 contours \\
+Image Mean Intensity & 82.37\\
+Image Standard Deviation & 61.81\\
+Dominant FFT Frequency & 9 cycles/pixel\\
+Canny Edge Density & 0.0300\\
+Harris Corners & 364\\
+HOG Descriptor Dimension & 142,884\\
+Detected Hough Lines & 23\\
+Detected Hough Circles & 31\\
+Closed Contours & 28\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-% ==============================================================================
-% 11. TESTING APPROACH
-% ==============================================================================
-\section{Testing Approach}
-Testing was implemented using the \texttt{pytest} framework under \texttt{tests/}.
+These measurements demonstrate that the pipeline produces both numerical image statistics and higher-level structural information.
 
-\begin{itemize}
-    \item \textbf{Synthetic Image Testing}: To avoid external test data dependencies, unit tests construct synthetic NumPy arrays (e.g., solid squares, concentric circles, synthetic noise fields).
-    \item \textbf{Boundary Validation}: Test cases verify edge cases, including minimum image dimensions ($32 \times 32$), single-channel vs. multi-channel inputs, and empty contour arrays.
-    \item \textbf{Test Suite Execution}: Over 60 automated test cases verify that operations return valid arrays and non-null metadata dictionaries without unhandled exceptions.
-\end{itemize}
+%================================================
+% 11. BOTTLENECK ANALYSIS
+%================================================
 
-\begin{lstlisting}[language=bash, caption=Pytest Execution Command]
-# Execute complete unit testing suite
-pytest tests/ -v
-\end{lstlisting}
+\section{Computational Bottleneck Analysis}
 
-% ==============================================================================
-% 12. CHALLENGES FACED
-% ==============================================================================
-\section{Challenges Faced \& Solutions}
-During system development, four technical challenges were addressed:
+The latency measurements show that different algorithms contribute significantly different amounts of computational overhead.
+
+The K-Means segmentation stage required approximately 2.0897 seconds, representing approximately 25.17\% of the total measured pipeline execution time.
+
+The Gabor filtering stage required approximately 0.6864 seconds, making it another significant contributor to computational cost.
+
+The FFT and scale-space processing stages also produced noticeable overhead, requiring approximately 0.4107 seconds and 0.4078 seconds respectively.
+
+The remaining operations generally required considerably less time.
+
+These results demonstrate why profiling is important when constructing a computer vision system. An algorithm that is mathematically simple may still become computationally expensive when applied repeatedly to large images or multiple feature scales.
+
+%================================================
+% 12. PRACTICAL OBSERVATIONS
+%================================================
+
+\section{Practical Observations}
+
+Several observations were obtained during the development and benchmarking process.
+
+\subsection{Modularity}
+
+Separating the system into independent modules makes it easier to test, debug, replace, and optimize individual algorithms.
+
+\subsection{Lighting Sensitivity}
+
+Classical image processing techniques can be sensitive to lighting conditions. Contrast enhancement techniques such as CLAHE can improve local visibility, but excessive enhancement can also amplify noise.
+
+\subsection{Computational Cost}
+
+The benchmark demonstrates that segmentation and texture analysis can become computational bottlenecks.
+
+\subsection{Interpretability}
+
+Unlike many black-box models, classical computer vision algorithms provide mathematically interpretable intermediate results such as gradients, corners, contours, frequency components, and motion vectors.
+
+\subsection{CPU-Based Processing}
+
+The VisionForge architecture demonstrates that a substantial computer vision pipeline can be executed using conventional CPU-based processing without requiring a deep-learning accelerator.
+
+%================================================
+% 13. SOFTWARE ENGINEERING DESIGN
+%================================================
+
+\section{Software Engineering Design}
+
+The system follows a modular software architecture.
+
+Each processing stage can be implemented as an independent component with defined inputs and outputs.
+
+A simplified structure is:
+
+\begin{verbatim}
+VisionForge/
+|
++-- preprocessing/
+|   +-- grayscale
+|   +-- gaussian
+|   +-- median
+|   +-- clahe
+|   +-- fft
+|
++-- features/
+|   +-- canny
+|   +-- log
+|   +-- dog
+|   +-- harris
+|   +-- gabor
+|   +-- hog
+|
++-- segmentation/
+|   +-- kmeans
+|   +-- mean_shift
+|   +-- region_growing
+|   +-- watershed
+|
++-- shapes/
+|   +-- hough_lines
+|   +-- hough_circles
+|   +-- contours
+|   +-- descriptors
+|   +-- pca
+|   +-- knn
+|
++-- motion/
+|   +-- background_subtraction
+|   +-- dense_flow
+|   +-- sparse_flow
+|   +-- affine_motion
+|
++-- tests/
++-- main.py
+\end{verbatim}
+
+This organization supports independent testing and future extension.
+
+%================================================
+% 14. TESTING
+%================================================
+
+\section{Testing and Reliability}
+
+Testing was performed across the major processing components.
+
+The implementation included more than 20 tests covering different modules and processing operations.
+
+The testing strategy focused on:
 
 \begin{enumerate}
-    \item \textbf{Over-Segmentation in Watershed Filtering}: Direct gradient watershed led to severe region over-segmentation. \textit{Solution}: Applied distance-transform local maxima thresholding to initialize clean catchment basin markers.
-    \item \textbf{K-Means Latency Bottleneck}: High-resolution color clustering accounted for over 25\% of total latency. \textit{Solution}: Implemented configurable cluster values $K$ and spatial downsampling prior to distance evaluations.
-    \item \textbf{High-Frequency Foliage / Gravel Noise}: Aggressive edge detection flagged irrelevant texture noise. \textit{Solution}: Integrated bilateral texture smoothing prior to Canny derivative calculation.
-    \item \textbf{Hough Accumulator Noise Voting}: Non-collinear noise produced false line artifacts. \textit{Solution}: Parameterized minimum line lengths and maximum allowed gap distances.
+    \item Verifying successful image loading.
+    \item Checking image dimensions.
+    \item Validating grayscale conversion.
+    \item Testing filtering operations.
+    \item Testing feature extraction.
+    \item Validating segmentation outputs.
+    \item Checking shape detection.
+    \item Testing motion-processing components.
+    \item Ensuring expected output data types.
+    \item Checking for runtime exceptions.
 \end{enumerate}
 
-% ==============================================================================
-% 13. LEARNINGS & KEY TAKEAWAYS
-% ==============================================================================
-\section{Learnings \& Key Takeaways}
-\begin{itemize}
-    \item \textbf{Power of Classical Feature Invariants}: Properly tuned differential and spatial filters (Harris, HOG, Scale-Space) yield robust feature representations without deep network training.
-    \item \textbf{Spectral Insights}: Fourier magnitude spectra reveal global directional orientation and periodic structural noise efficiently.
-    \item \textbf{Modular Design Hygiene}: Decoupling feature extraction from visualization and evaluation ensures clean maintainability and rapid algorithm extension.
-\end{itemize}
+The reported test execution produced zero runtime exceptions during the evaluated test suite.
 
-% ==============================================================================
-% 14. FUTURE ENHANCEMENTS
-% ==============================================================================
-\section{Future Enhancements}
-\begin{itemize}
-    \item \textbf{GPU \& Parallel Acceleration}: Accelerate K-Means and Gabor filter convolutions using Numba or OpenCV CUDA primitives.
-    \item \textbf{Real-Time Camera Capture}: Extend CLI utilities to support real-time USB/RTSP webcam stream processing.
-    \item \textbf{Stereo Depth Reconstruction}: Integrate multi-view stereo vision to compute true 3D spatial depth maps.
-\end{itemize}
+%================================================
+% 15. DISCUSSION
+%================================================
 
-% ==============================================================================
-% 15. REFERENCES
-% ==============================================================================
-\section{References}
-\begin{thebibliography}{9}
-\bibitem{canny1986} J. Canny, ``A Computational Approach to Edge Detection,'' \textit{IEEE TPAMI}, vol. 8, no. 6, pp. 679--698, 1986.
-\bibitem{harris1988} C. Harris and M. Stephens, ``A Combined Corner and Edge Detector,'' in \textit{Proc. Alvey Vision Conf.}, 1988, pp. 147--151.
-\bibitem{otsu1979} N. Otsu, ``A Threshold Selection Method from Gray-Level Histograms,'' \textit{IEEE SMC}, vol. 9, no. 1, pp. 62--66, 1979.
-\bibitem{dalal2005} N. Dalal and B. Triggs, ``Histograms of Oriented Gradients for Human Detection,'' in \textit{IEEE CVPR}, 2005, pp. 886--893.
-\bibitem{lucas1981} B. D. Lucas and T. Kanade, ``An Iterative Image Registration Technique,'' in \textit{Proc. IJCAI}, 1981, pp. 674--679.
-\bibitem{comaniciu2002} D. Comaniciu and P. Meer, ``Mean Shift: A Robust Approach Toward Feature Space Analysis,'' \textit{IEEE TPAMI}, vol. 24, no. 5, pp. 603--619, 2002.
-\bibitem{vincent1991} L. Vincent and P. Soille, ``Watersheds in Digital Spaces,'' \textit{IEEE TPAMI}, vol. 13, no. 6, pp. 583--598, 1991.
-\bibitem{duda1972} R. O. Duda and P. E. Hart, ``Use of the Hough Transformation to Detect Lines and Curves,'' \textit{CACM}, vol. 15, no. 1, pp. 11--15, 1972.
+\section{Discussion}
+
+VisionForge demonstrates that classical computer vision algorithms can be combined to construct a complete visual processing architecture.
+
+The major advantage of the proposed system is its interpretability. Every stage has a clear mathematical purpose and produces measurable intermediate information.
+
+The preprocessing stage improves the input representation. Feature extraction then converts the image into representations describing edges, corners, gradients, and textures. Segmentation organizes pixels into meaningful groups, while geometric analysis extracts higher-level structural information.
+
+The video module further extends this architecture by introducing temporal information. Background subtraction identifies moving objects, while optical flow provides information about motion between frames.
+
+The benchmark results also demonstrate an important engineering consideration: algorithm selection must account for computational cost in addition to theoretical effectiveness.
+
+%================================================
+% 16. LIMITATIONS
+%================================================
+
+\section{Limitations}
+
+Although VisionForge provides a broad classical computer vision pipeline, several limitations remain.
+
+\begin{enumerate}
+    \item Classical algorithms may be sensitive to illumination and environmental changes.
+    \item Parameter selection can strongly influence segmentation and detection results.
+    \item K-Means requires the number of clusters to be specified.
+    \item Optical flow methods may be affected by large motion, occlusion, or illumination changes.
+    \item Classical feature descriptors may be less robust than learned representations for highly complex recognition tasks.
+    \item The measured benchmark represents a particular hardware and software environment and therefore should not be interpreted as a universal runtime.
+\end{enumerate}
+
+%================================================
+% 17. FUTURE WORK
+%================================================
+
+\section{Future Work}
+
+Several extensions can be considered for future versions of VisionForge.
+
+\begin{enumerate}
+    \item GPU acceleration for computationally expensive operations.
+    \item Parallel processing of independent feature extraction modules.
+    \item Automatic parameter optimization.
+    \item Real-time video processing.
+    \item Integration of classical features with machine learning models.
+    \item Addition of a graphical user interface.
+    \item Automated benchmark visualization.
+    \item More advanced temporal scene analysis.
+\end{enumerate}
+
+%================================================
+% 18. CONCLUSION
+%================================================
+
+\section{Conclusion}
+
+VisionForge presents a modular classical computer vision architecture covering the complete processing chain from low-level image preprocessing to video scene dynamics.
+
+The system integrates grayscale conversion, filtering, contrast enhancement, frequency-domain analysis, edge and corner detection, scale-space processing, texture analysis, HOG descriptors, segmentation, geometric shape detection, contour analysis, PCA, KNN, background subtraction, and optical flow.
+
+For a $512\times512$ RGB input image, the measured static processing pipeline required approximately 8.3015 seconds. The system generated 364 Harris corners, 142,884 HOG descriptors, 23 Hough lines, 31 circles, and 28 closed contours.
+
+The empirical results demonstrate that classical computer vision remains useful for understanding the fundamental mechanisms of visual processing. The modular architecture also provides a practical engineering framework in which algorithms can be independently evaluated, profiled, tested, and replaced.
+
+Overall, VisionForge demonstrates how mathematically grounded classical computer vision techniques can be integrated into a complete and measurable visual processing system.
+
+%================================================
+% REFERENCES
+%================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{canny1986}
+J. Canny,
+``A Computational Approach to Edge Detection,''
+\textit{IEEE Transactions on Pattern Analysis and Machine Intelligence},
+vol. PAMI-8, no. 6, pp. 679--698, 1986.
+
+\bibitem{harris1988}
+C. Harris and M. Stephens,
+``A Combined Corner and Edge Detector,''
+in \textit{Proceedings of the Alvey Vision Conference},
+pp. 147--151, 1988.
+
+\bibitem{otsu1979}
+N. Otsu,
+``A Threshold Selection Method from Gray-Level Histograms,''
+\textit{IEEE Transactions on Systems, Man, and Cybernetics},
+vol. 9, no. 1, pp. 62--66, 1979.
+
+\bibitem{dalal2005}
+N. Dalal and B. Triggs,
+``Histograms of Oriented Gradients for Human Detection,''
+in \textit{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+vol. 1, pp. 886--893, 2005.
+
+\bibitem{lucas1981}
+B. D. Lucas and T. Kanade,
+``An Iterative Image Registration Technique with an Application to Stereo Vision,''
+in \textit{Proceedings of the International Joint Conference on Artificial Intelligence},
+pp. 674--679, 1981.
+
+\bibitem{comaniciu2002}
+D. Comaniciu and P. Meer,
+``Mean Shift: A Robust Approach Toward Feature Space Analysis,''
+\textit{IEEE Transactions on Pattern Analysis and Machine Intelligence},
+vol. 24, no. 5, pp. 603--619, 2002.
+
+\bibitem{vincent1991}
+L. Vincent and P. Soille,
+``Watersheds in Digital Spaces: An Efficient Algorithm Based on Immersion Simulations,''
+\textit{IEEE Transactions on Pattern Analysis and Machine Intelligence},
+vol. 13, no. 6, pp. 583--598, 1991.
+
+\bibitem{duda1972}
+R. O. Duda and P. E. Hart,
+``Use of the Hough Transformation to Detect Lines and Curves in Pictures,''
+\textit{Communications of the ACM},
+vol. 15, no. 1, pp. 11--15, 1972.
+
 \end{thebibliography}
+
+%================================================
+% END DOCUMENT
+%================================================
 
 \end{document}
