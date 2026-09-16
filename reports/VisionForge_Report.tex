@@ -93,7 +93,7 @@
 \begin{abstract}
 Automated visual inspection and scene interpretation require deterministic, low-latency, and interpretable algorithm pipelines that operate reliably without black-box neural dependencies or high-end GPU hardware. This report presents \textbf{VisionForge}, an end-to-end Python framework that unifies fundamental classical computer vision routines into a cohesive five-stage architecture: (1) low-level image preprocessing and frequency-domain spectral transformation; (2) multi-scale feature extraction encompassing edge, corner, scale-space, and Gabor texture descriptors; (3) spatial and color-space image segmentation; (4) geometric shape detection, contour analytics, and pattern classification; and (5) video-based scene dynamics incorporating background subtraction, dense/sparse optical flow, and affine motion estimation. 
 
-We provide complete mathematical derivations for every pipeline component—from Contrast-Limited Adaptive Histogram Equalization (CLAHE) and 2D Discrete Fourier Transforms to Harris second-moment matrices, K-Means color clustering, Hough space accumulators, and Lucas-Kanade gradient constraints. In benchmark trials on $512 \times 512 \times 3$ image arrays, VisionForge executed the full static analysis sequence in $8.3015~\text{s}$, extracting 364 Harris corner keypoints, 142,884 HOG descriptors, 23 Hough lines, 31 circles, and 28 closed contours without triggering unhandled runtime exceptions. Experimental evaluation confirms that deterministic feature engineering delivers transparent, parameter-tunable visual representations suitable for real-time edge processing and autonomous system telemetry.
+We provide complete mathematical derivations for every pipeline component -- from Contrast-Limited Adaptive Histogram Equalization (CLAHE) and 2D Discrete Fourier Transforms to Harris second-moment matrices, K-Means color clustering, Hough space accumulators, and Lucas-Kanade gradient constraints. In benchmark trials on $512 \times 512 \times 3$ image arrays, VisionForge executed the full static analysis sequence in $8.3015~\text{s}$, extracting 364 Harris corner keypoints, 142,884 HOG descriptors, 23 Hough lines, 31 circles, and 28 closed contours without triggering unhandled runtime exceptions. Experimental evaluation confirms that deterministic feature engineering delivers transparent, parameter-tunable visual representations suitable for real-time edge processing and autonomous system telemetry.
 \end{abstract}
 
 \newpage
@@ -129,14 +129,14 @@ VisionForge directly addresses these challenges by implementing a modular Python
 \section{Functional Requirements}
 The VisionForge framework satisfies the following core functional specifications:
 
-\begin{itemize}
+\begin{itemize}[noitemsep]
     \item \textbf{FR-1: Visual Input Ingestion}: The system shall accept standard static image formats (JPEG, PNG) and dynamic video streams (MP4, AVI) of arbitrary dimensions.
     \item \textbf{FR-2: Individual Stage Subcommands}: The CLI shall allow targeted execution of isolated pipeline stages (\texttt{preprocess}, \texttt{edges}, \texttt{features}, \texttt{segment}, \texttt{shapes}, \texttt{motion}).
     \item \textbf{FR-3: End-to-End Pipeline Execution}: The system shall execute a unified subcommand (\texttt{analyze} or \texttt{analyze-video}) that executes all stages sequentially.
     \item \textbf{FR-4: Algorithm Selection Flexibility}: Users shall be able to configure specific algorithmic backends (e.g., selecting between K-Means, Mean-Shift, Region Growing, or Watershed for segmentation).
     \item \textbf{FR-5: Visual Output Export}: Annotated output images, edge masks, cluster maps, and comparison grids shall be exported automatically to a designated output directory.
-    \item \textbf{FR-6: Structured Telemetry Reporting}: The system shall generate machine-readable JSON metadata reports and human-readable text summaries detailing all statistical measurements.
-    \item \textbf{FR-7: Execution Performance Metrics}: Per-stage processing latency shall be recorded and reported in seconds and milliseconds.
+    \item \textbf{FR-6: Telemetry Reporting}: The system shall generate machine-readable JSON metadata reports and human-readable text summaries detailing all statistical measurements.
+    \item \textbf{FR-7: Latency Metrics}: Per-stage processing latency shall be recorded and reported in seconds and milliseconds.
 \end{itemize}
 
 % ==============================================================================
@@ -161,6 +161,7 @@ VisionForge is organized into a modular layered architecture under the \texttt{s
 
 \begin{figure}[H]
 \centering
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
     node distance=1.2cm and 2.0cm,
     block/.style={rectangle, draw=navyblue, fill=navyblue!10, thick, rounded corners, minimum width=3.5cm, minimum height=1.0cm, align=center},
@@ -189,7 +190,8 @@ VisionForge is organized into a modular layered architecture under the \texttt{s
     \path [line] (m3) |- (eval);
     \path [line] (m4) |- (eval);
     \path [line] (m5) -- (eval);
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{High-Level Software Architecture and Module Dependencies}
 \label{fig:arch_diagram}
 \end{figure}
@@ -204,6 +206,7 @@ The Use Case Diagram illustrates the interactions between the primary user and t
 
 \begin{figure}[H]
 \centering
+\resizebox{0.75\linewidth}{!}{%
 \begin{tikzpicture}[
     actor/.style={circle, draw=navyblue, fill=navyblue!20, thick, minimum size=1.0cm},
     usecase/.style={ellipse, draw=navyblue, fill=lightbg, thick, minimum width=3.2cm, minimum height=0.9cm, align=center},
@@ -222,7 +225,8 @@ The Use Case Diagram illustrates the interactions between the primary user and t
     \path [line] (user) -- (uc3);
     \path [line] (user) -- (uc4);
     \path [line] (user) -- (uc5);
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{VisionForge Use Case Diagram}
 \label{fig:usecase_diagram}
 \end{figure}
@@ -232,6 +236,7 @@ The Workflow Diagram illustrates the sequential transformation of image and vide
 
 \begin{figure}[H]
 \centering
+\resizebox{0.75\linewidth}{!}{%
 \begin{tikzpicture}[
     node distance=0.8cm,
     wfstep/.style={rectangle, draw=navyblue, fill=navyblue!10, thick, rounded corners, minimum width=6.5cm, minimum height=0.8cm, align=center},
@@ -253,7 +258,8 @@ The Workflow Diagram illustrates the sequential transformation of image and vide
     \path [arrow] (seg) -- (shape);
     \path [arrow] (shape) -- (motion);
     \path [arrow] (motion) -- (report);
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{End-to-End Data Transformations in VisionForge}
 \label{fig:workflow_diagram}
 \end{figure}
@@ -263,6 +269,7 @@ The Sequence Diagram details object creation and message passing during an execu
 
 \begin{figure}[H]
 \centering
+\resizebox{0.9\linewidth}{!}{%
 \begin{tikzpicture}[
     lifeline/.style={draw=darkslate, dashed, thick},
     obj/.style={rectangle, draw=navyblue, fill=navyblue!15, thick, minimum width=2.2cm, minimum height=0.7cm, align=center},
@@ -283,7 +290,8 @@ The Sequence Diagram details object creation and message passing during an execu
     \draw [msg] ($(prep)+(0,-2.4)$) -- node[above] {\texttt{Return Gray Array}} ($(pipe)+(0,-2.4)$);
     \draw [msg] ($(pipe)+(0,-3.2)$) -- node[above] {\texttt{harris\_corners()}} ($(feat)+(0,-3.2)$);
     \draw [msg] ($(feat)+(0,-3.8)$) -- node[above] {\texttt{Return Keypoints}} ($(pipe)+(0,-3.8)$);
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Sequence Diagram for Image Analysis}
 \label{fig:sequence_diagram}
 \end{figure}
@@ -293,6 +301,7 @@ The Class Diagram outlines the internal module interfaces and inheritance relati
 
 \begin{figure}[H]
 \centering
+\resizebox{0.9\linewidth}{!}{%
 \begin{tikzpicture}[
     class/.style={rectangle, draw=navyblue, fill=lightbg, thick, minimum width=4.5cm, align=left, font=\small}
 ]
@@ -345,7 +354,8 @@ The Class Diagram outlines the internal module interfaces and inheritance relati
         + analyze\_contours(mask)
         \end{tabular}
     };
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Core Module Class Architecture}
 \label{fig:class_diagram}
 \end{figure}
@@ -355,6 +365,7 @@ VisionForge logs structured telemetry via a standardized JSON schema representin
 
 \begin{figure}[H]
 \centering
+\resizebox{0.85\linewidth}{!}{%
 \begin{tikzpicture}[
     entity/.style={rectangle, draw=navyblue, fill=navyblue!10, thick, minimum width=3.8cm, minimum height=1.0cm, align=center, font=\small},
     rel/.style={draw=navyblue, thick, -{Latex[scale=1.0]}}
@@ -369,7 +380,8 @@ VisionForge logs structured telemetry via a standardized JSON schema representin
     \path [rel] (root) -- (feat);
     \path [rel] (root) -- (seg);
     \path [rel] (root) -- (time);
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{JSON Metadata Telemetry Data Schema}
 \label{fig:er_diagram}
 \end{figure}
